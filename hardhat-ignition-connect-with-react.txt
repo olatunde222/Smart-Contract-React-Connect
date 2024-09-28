@@ -1,0 +1,108 @@
+Steps
+=========================================================================================================================================================== 
+1. In the folder/directory of choice.
+	- npx create-react-app
+	- npm install "express" "hardhat" "ethers" "dotenv" "@nomicfoundation/hardhat-toolbox" "@nomicfoundation/hardhat-ignition"
+	- npx hardhat init [yes yes yes]
+=========================================================================================================================================================== 
+2. Create and Write Your Smart contract 
+=========================================================================================================================================================== 
+3. In the Ignition/Module folder, Run this code
+	- const {buildModule} = require("@nomicfoundation/hardhat-ignition/modules");
+	- module.exports = buildModule("YOURCONTRACTNAME+Module",(m) => { 	          
+		const contractname+Contract = m.contract("CONTRACTNAME", [CONSTRUCTOR ARGS if any OR leave it empty[]], {
+			value:CONSTRUCTOR-ARGS-VALUE;
+		}); 	  
+		return {contractName };});
+=========================================================================================================================================================== 
+4. In the Hardhat config file,
+	require("@nomicfoundation/hardhat-toolbox");
+	require("@nomicfoundation/hardhat-ignition");
+	require("dotenv").config();
+	/** @type import('hardhat/config').HardhatUserConfig */
+	module.exports = {
+	  solidity: "0.8.24",
+	  networks: {
+	    fantomtest: {
+	      url: process.env.PROVIDER_URL,
+	      accounts: [`0x${process.env.PRIVATE_KEY}`]
+	    }
+	  }
+	}
+=========================================================================================================================================================== 
+5. In the .env file 
+	- paste the PROVIDER_URL
+	- paste the PRIVATE_KEY
+=========================================================================================================================================================== 
+6. Run npx hardhat compile
+=========================================================================================================================================================== 
+7. Run npx hardhat ignition deploy ignition/modules/YOURCONTRACT.js --network YOUR-NETWORK-SAME-AS-ABOVE
+=========================================================================================================================================================== 
+8. Confirmation message [Yes Yes Yes]
+=========================================================================================================================================================== 
+9. After successfully deploying, it will give you an Address. 
+=========================================================================================================================================================== 
+10. In the Src folder, create a new AddrressABI folder, then create an AddressABI.js and ContractAddress.js files
+=============ContractABI.js=======================================================
+	- export const contractAddress = "0xx...................................298";
+=============AddressABI.js========================================================
+YOU CAN GET THIS FROM THE ARTIFICAT FOLDER AFTER DEPLOYING
+	- export const contractABI = [
+	    {
+	      "inputs": [],
+	      "name": "myCity",
+	      "outputs": [
+	        {
+	          "internalType": "string",
+	          "name": "",
+	          "type": "string"
+	        }
+	      ],
+	      "stateMutability": "view",
+	      "type": "function"
+	    }
+	  ]
+=========================================================================================================================================================== 
+11. In your Component folder, where you want to use the connection functionality, Run: 
+
+	function Main() {
+
+	  const {ethereum} = window;
+
+	  const [paragraph1, setParagraph1] = useState("");
+	  const [paragraph2, setParagraph2] = useState("");
+
+	  const connectMetamask = async () => {
+	    if(window.ethereum !== "undefined") {
+	      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+	      console.log(accounts[0]);
+	      setParagraph1(accounts[0]);
+	    }
+	  }
+
+	  let contractApple;
+
+	  const connectContract = async () => {
+	    const provider = new ethers.BrowserProvider(window.ethereum);
+	    const signer = await provider.getSigner();
+	    contractApple = new ethers.Contract(contractAddress, contractABI, signer);
+	    const myData = await contractApple.myCity();
+	    setParagraph2(myData);
+	    //bonus:
+	    console.log(contractApple.target);
+  }
+
+  return (
+	    <div>
+	      <button onClick={connectMetamask}>Connect Metamask</button>
+	      <p>{paragraph1}</p>
+      
+	      <button onClick={connectContract}>Connect Contract</button>
+	      <p>{paragraph2}</p>
+    
+	    </div>
+	  )
+	}
+
+export default Main
+=========================================================================================================================================================== 
